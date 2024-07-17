@@ -1,0 +1,243 @@
+body {
+    font-family: "DM Sans", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.start-page, .index-block-page, .game-container {
+    text-align: center;
+    height: 100vh;
+} 
+
+.start-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.index-block-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.start-button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.start-button:hover {
+    background-color: #45a049;
+}
+
+.game-container {
+    margin: 0 auto;
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(12, 60px); /* Adjust number of columns as needed */
+    grid-gap: 10px;
+    justify-content: center;
+}
+
+.block {
+    width: 60px;
+    height: 60px;
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.block.selected {
+    background-color: #999;
+}
+
+.block.correct {
+    background-color: #8bc34a;
+}
+
+.block.incorrect {
+    background-color: #f44336;
+}
+
+.block.outer-index {
+    background-color: #42a5f5;
+}
+
+.block.index {
+    background-color: #66bb6a;
+}
+
+.block.data {
+    background-color: #ffca28;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#end-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-align: center;
+    z-index: 1000;
+    animation: fadeIn 1s;
+}
+
+#end-screen .content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: zoomIn 1s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5) translate(-50%, -50%);
+    }
+    to {
+        transform: scale(1) translate(-50%, -50%);
+    }
+}
+
+.inode-container {
+    border-radius: 5px;
+    min-width: 35vb;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.control-button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.control-button#outer-index-button {
+    background-color: #42a5f5;
+}
+
+.control-button#index-button {
+    background-color: #66bb6a;
+}
+
+.control-button#data-button {
+    background-color: #ffca28;
+}
+
+.control-button:hover {
+    background-color: #45a049;
+}
+
+.file-card {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.5s, opacity 0.5s;
+}
+
+.file-card.hidden {
+    transform: translateY(-50px);
+    opacity: 0;
+}
+
+.block.selected-outer-index {
+    background-color: lightblue;
+}
+
+.block.selected-index {
+    background-color: lightgreen;
+}
+
+.block.selected-data {
+    background-color: lightyellow;
+}
+
+#error-message {
+    margin-top: 20px;
+    font-size: 18px;
+    color: red;
+}
+
+.block-label {
+    font-size: 12px;
+    color: black;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+#index-block-size-display {
+    font-size: 20px;
+}
+
+.d-hidden {
+    visibility: hidden !important;
+    height: 0px !important;
+  }
