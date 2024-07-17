@@ -1,0 +1,56 @@
+body {
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(12, 60px);
+    grid-template-rows: repeat(12, 60px);
+    gap: 5px;
+}
+
+.box {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #000;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.glow-blue {
+    border: 2px solid blue;
+    box-shadow: 0 0 10px blue;
+}
+
+.glow-green {
+    border: 2px solid green;
+    box-shadow: 0 0 10px green;
+}
+
+.glow-red {
+    border: 2px solid red;
+    box-shadow: 0 0 10px red;
+}
+
+.blue {
+    background-color: blue;
+    color: white;
+}
+
+.green {
+    background-color: green;
+    color: white;
+}
+
+.red {
+    background-color: red;
+    color: white;
+}
