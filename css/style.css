@@ -1,0 +1,262 @@
+/* Common Styles */
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: #f0f2f5; /* Light background */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
+}
+
+.start-page {
+    text-align: center;
+    padding: 40px 30px;
+    background-color: #ffffff; /* White background */
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 450px;
+    width: 100%;
+}
+
+.logo {
+    margin-bottom: 20px;
+    height: 80px;
+}
+
+.h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.description {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.btn-custom {
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 10px 0;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.3s;
+    font-size: 1.25rem;
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px auto;
+}
+
+.btn-custom:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.footer {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #999;
+}
+
+/* Game Board Styles */
+#board {
+    display: grid;
+    grid-template-columns: repeat(12, 40px);
+    grid-template-rows: repeat(12, 40px);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.box {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ced4da; /* Light gray border */
+    cursor: pointer;
+    background-color: #ffffff; /* White background */
+    transition: background-color 0.3s, transform 0.3s;
+    font-weight: bold;
+    color: #495057; /* Dark gray text */
+}
+
+.box:hover {
+    background-color: #e9ecef; /* Light gray hover */
+    transform: scale(1.05);
+}
+
+button {
+    background-color: #333333; /* Dark button background */
+    color: #ffffff; /* Light button text */
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #444444; /* Slightly lighter on hover */
+}
+
+button:disabled {
+    background-color: #555555; /* Disabled button background */
+    cursor: not-allowed;
+}
+
+#controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#action-button, #data-button, #restart-button {
+    margin-top: 20px;
+}
+
+#instruction-text {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+#control-panel {
+    text-align: center;
+}
+
+#control-panel button {
+    margin: 5px;
+}
+
+/* Game-specific styles */
+.blue {
+    background-color: #007bff;
+    color: white;
+}
+
+.light-blue {
+    background-color: lightblue;
+    color: white;
+}
+
+.glow-blue {
+    box-shadow: 0 0 10px 2px blue;
+}
+
+.glow-light-blue {
+    box-shadow: 0 0 10px 2px lightblue;
+}
+
+.glow-orange {
+    box-shadow: 0 0 10px 2px orange;
+}
+
+.glow-light-orange {
+    box-shadow: 0 0 10px 2px lightsalmon;
+}
+
+.glow-green {
+    box-shadow: 0 0 10px 2px green;
+}
+
+.glow-light-green {
+    box-shadow: 0 0 10px 2px lightgreen;
+}
+
+.orange {
+    background-color: orange;
+    color: white;
+}
+
+.light-orange {
+    background-color: lightsalmon;
+    color: white;
+}
+
+.green {
+    background-color: green;
+    color: white;
+}
+
+.light-green {
+    background-color: lightgreen;
+    color: white;
+}
+
+/* Levels Page Styles */
+.difficulty-page {
+    text-align: center;
+    padding: 40px 30px;
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 450px;
+    width: 100%;
+}
+
+.h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.description {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.btn-easy {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-easy:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.btn-medium {
+    background-color: #ffc107;
+    color: white;
+}
+
+.btn-medium:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+}
+
+.btn-hard {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-hard:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+.btn-back {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-back:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.footer {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #999;
+}
