@@ -1,6 +1,6 @@
 # Index Allocation Game
 
-This project is an educational game designed to teach the concepts of file allocation in operating systems, specifically focusing on indexed allocation methods. The game provides three difficulty levels: Easy, Medium, and Hard, each representing different file allocation schemes.
+This project is an educational game designed to teach the concepts of file allocation in operating systems, specifically focusing on indexed allocation methods. The game provides three difficulty levels: Linked Scheme (Easy), Multilevel Index (Medium), and Combined Scheme (Hard), each representing different file allocation schemes.
 
 ## Table of Contents
 
@@ -10,19 +10,20 @@ This project is an educational game designed to teach the concepts of file alloc
 - [Usage](#usage)
 - [Game Modes](#game-modes)
 - [Learn Theory](#learn-theory)
+- [Slides](#slides)
 - [License](#license)
 
 ## Features
 
-- **Easy Mode**: Single-level index allocation.
-- **Medium Mode**: Two-level index allocation.
-- **Hard Mode**: Multilevel index allocation with multiple files.
+- **Linked Scheme (Easy Mode)**: Single-level index allocation.
+- **Multilevel Index (Medium Mode)**: Two-level index allocation.
+- **Combined Scheme (Hard Mode)**: Multilevel index allocation with multiple files.
 - **Interactive Gameplay**: Visual representation of file blocks and pointers.
 - **Educational**: Helps users understand the file allocation concepts through an engaging game.
 
 ## How to Play
 
-1. **Select a Difficulty**: Choose between Easy, Medium, and Hard modes.
+1. **Select a Difficulty**: Choose between Linked Scheme, Multilevel Index, and Combined Scheme modes.
 2. **Index Selection**: Click the "Index" button to highlight the index block(s). Click the highlighted block to confirm your selection.
 3. **Data Block Selection**: Click the "Data" button to highlight the data blocks. Click the highlighted blocks to confirm your selections.
 4. **Win Condition**: Correctly select all the data blocks as per the index blocks to win the game.
@@ -53,77 +54,46 @@ This project is an educational game designed to teach the concepts of file alloc
 
 ## Game Modes
 
-### Easy Mode (Linked Scheme)
+### Linked Scheme (Easy Mode)
 
-**Description:**
-In the linked scheme, each file is represented by a series of blocks linked together. This method is straightforward and easy to implement. Each block contains a pointer to the next block in the sequence.
+- **Description**: This mode represents a single-level index allocation scheme where each file has an index block pointing directly to its data blocks.
+- **Educational Benefit**: Helps users understand the basic concept of indexed allocation without the complexity of multiple levels.
 
-**Advantages:**
-- Simple implementation.
-- Easy to insert and delete blocks.
+### Multilevel Index (Medium Mode)
 
-**Disadvantages:**
-- Can lead to external fragmentation.
-- Requires additional overhead to maintain pointers.
+- **Description**: This mode represents a two-level index allocation scheme. A primary index block points to secondary index blocks, which in turn point to the actual data blocks.
+- **Educational Benefit**: Illustrates the hierarchical nature of multilevel indexing, providing a deeper understanding of how larger files are managed in file systems.
 
-### Medium Mode (Multilevel Index)
+### Combined Scheme (Hard Mode)
 
-**Description:**
-The multilevel index scheme uses multiple levels of index blocks to manage file allocation. It starts with a primary index block, which can point to other index blocks, and eventually to the actual data blocks.
-
-**Advantages:**
-- Reduces fragmentation.
-- Provides better organization for large files.
-- Efficient management of large files.
-
-**Disadvantages:**
-- More complex to implement.
-- Requires multiple levels of pointers, increasing overhead.
-
-### Hard Mode (Combined Scheme)
-
-**Description:**
-The combined scheme integrates both direct and indirect block pointers. Each file uses a combination of direct pointers, single-level indirect pointers, and multi-level indirect pointers.
-
-**Advantages:**
-- Minimizes fragmentation.
-- Maximizes storage utilization.
-- Balances ease of implementation with efficiency.
-
-**Disadvantages:**
-- More complex to manage.
-- Requires careful handling of different block types.
+- **Description**: This mode represents a multilevel index allocation with multiple files. Each file uses a mix of direct and indirect blocks, simulating a more complex real-world scenario.
+- **Educational Benefit**: Demonstrates the combined use of direct and indirect indexing, showcasing the efficiency and complexity of advanced file allocation methods.
 
 ## Learn Theory
 
-The theory section of this project provides detailed explanations of various file allocation methods used in operating systems. It includes:
+### Indexed Allocation
 
-1. **File Allocation Methods**:
-    - Contiguous Allocation: Blocks are stored sequentially.
-    - Linked Allocation: Each file is a linked list of blocks.
-    - Indexed Allocation: Uses index blocks to manage pointers to file blocks.
+**Features:**
+- Logical view with index blocks.
+- No external fragmentation, but potential wasted space in index blocks.
 
-2. **Indexed Allocation**:
-    - Single-Level Index: A single index block contains pointers to all data blocks.
-    - Multilevel Index: Uses multiple levels of index blocks for better organization.
-    - Combined Scheme: Integrates direct and indirect blocks for flexible file management.
+**Schemes:**
+- **Linked Scheme**: Index block links to other index blocks.
+- **Multilevel Index**: First-level index points to second-level indices, and so on.
+- **Combined Scheme**: Mix of direct and indirect blocks.
 
-3. **Advantages and Disadvantages**:
-    - **Contiguous Allocation**:
-        - Advantages: Simple and fast access.
-        - Disadvantages: Can lead to fragmentation and is not flexible.
-    - **Linked Allocation**:
-        - Advantages: Flexible and no external fragmentation.
-        - Disadvantages: Slower access due to sequential traversal.
-    - **Indexed Allocation**:
-        - Advantages: Provides efficient random access.
-        - Disadvantages: More complex and requires additional overhead for maintaining index blocks.
-
-4. **Practical Applications**:
-    - Learn how these methods are implemented in real-world file systems.
-    - Understand the trade-offs between different allocation strategies.
-
-Users can access the theory page by clicking the "Learn Theory" button on the main menu to deepen their understanding of these concepts.
+![Indexed Allocation](images/slides/Slide1.jpg)
+![File Systems](images/slides/Slide2.jpg)
+![Overview](images/slides/Slide3.jpg)
+![Mass Storage Structure](images/slides/Slide4.jpg)
+![File System Structures](images/slides/Slide5.jpg)
+![File System Layers](images/slides/Slide6.jpg)
+![File System Operations](images/slides/Slide7.jpg)
+![File Allocation Methods](images/slides/Slide8.jpg)
+![Contiguous Allocation](images/slides/Slide9.jpg)
+![Linked Allocation](images/slides/Slide10.jpg)
+![Free-Space Management](images/slides/Slide11.jpg)
+![End](images/slides/Slide12.jpg)
 
 ## License
 
