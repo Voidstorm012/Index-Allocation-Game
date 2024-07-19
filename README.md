@@ -59,7 +59,7 @@ The combined scheme integrates both direct and indirect block pointers. Each fil
 - `images/`: Contains image assets used in the game.
 
 ## Installation
-1. Clone the repository: `git clone https://github.com/yourusername/Indexed-Allocation-Game.git`
+1. Clone the repository: `git clone https://github.com/Voidstorm012/Index-Allocation-Game.git`
 2. Open `index.html` in your preferred web browser to start the game.
 
 ## License
