@@ -1,74 +1,69 @@
 
-# Index Allocation Game
+# Indexed Allocation Game
 
-This project is an educational game designed to teach the concepts of file allocation in operating systems, specifically focusing on indexed allocation methods. The game provides three difficulty levels: Easy, Medium, and Hard, each representing different file allocation schemes.
+This repository contains the Indexed Allocation Game, an educational tool designed to teach users about different file allocation methods in operating systems. The game includes three levels of difficulty, each representing a different allocation scheme.
 
-## Table of Contents
+## Levels
 
-- [Features](#features)
-- [How to Play](#how-to-play)
-- [Setup](#setup)
-- [Usage](#usage)
-- [Game Modes](#game-modes)
-- [License](#license)
+### Linked Scheme (Easy)
+**Description:**
+In the linked scheme, each file is represented by a series of blocks linked together. This method is straightforward and easy to implement. Each block contains a pointer to the next block in the sequence.
 
-## Features
+**Advantages:**
+- Simple implementation.
+- Easy to insert and delete blocks.
 
-- **Easy Mode**: Single-level index allocation.
-- **Medium Mode**: Two-level index allocation.
-- **Hard Mode**: Multilevel index allocation with multiple files.
-- **Interactive Gameplay**: Visual representation of file blocks and pointers.
-- **Educational**: Helps users understand the file allocation concepts through an engaging game.
+**Disadvantages:**
+- Can lead to external fragmentation.
+- Requires additional overhead to maintain pointers.
+
+### Multilevel Index (Medium)
+**Description:**
+The multilevel index scheme uses multiple levels of index blocks to manage file allocation. It starts with a primary index block, which can point to other index blocks, and eventually to the actual data blocks.
+
+**Advantages:**
+- Reduces fragmentation.
+- Provides better organization for large files.
+- Efficient management of large files.
+
+**Disadvantages:**
+- More complex to implement.
+- Requires multiple levels of pointers, increasing overhead.
+
+### Combined Scheme (Hard)
+**Description:**
+The combined scheme integrates both direct and indirect block pointers. Each file uses a combination of direct pointers, single-level indirect pointers, and multi-level indirect pointers.
+
+**Advantages:**
+- Minimizes fragmentation.
+- Maximizes storage utilization.
+- Balances ease of implementation with efficiency.
+
+**Disadvantages:**
+- More complex to manage.
+- Requires careful handling of different block types.
 
 ## How to Play
+1. Select the desired difficulty level from the main menu.
+2. Follow the on-screen instructions to allocate blocks according to the chosen scheme.
+3. Use the "Index" button to select index blocks and the "Data" button to select data blocks.
+4. Use the "Restart" button to restart the game or the "Back" button to return to the level selection menu.
 
-1. **Select a Difficulty**: Choose between Easy, Medium, and Hard modes.
-2. **Index Selection**: Click the "Index" button to highlight the index block(s). Click the highlighted block to confirm your selection.
-3. **Data Block Selection**: Click the "Data" button to highlight the data blocks. Click the highlighted blocks to confirm your selections.
-4. **Win Condition**: Correctly select all the data blocks as per the index blocks to win the game.
-5. **Restart**: Click the "Restart" button to start a new game.
+## File Structure
+- `index.html`: The main entry point for the game.
+- `levels.html`: The level selection menu.
+- `theory.html`: A page for learning the theory behind file allocation methods.
+- `difficulty/`: Contains the HTML files for each difficulty level.
+- `css/`: Contains the stylesheet for the game.
+- `js/`: Contains the JavaScript logic for the game.
+- `images/`: Contains image assets used in the game.
 
-## Setup
-
-1. **Download the project**:
-    - Clone the repository:
-      \`\`\`sh
-      git clone https://github.com/Voidstorm012/Index-Allocation-Game.git
-      \`\`\`
-
-    - Or download the ZIP file from the [repository](https://github.com/Voidstorm012/Index-Allocation-Game) and extract it.
-
-2. **Navigate to the project directory**:
-    \`\`\`sh
-    cd Index-Allocation-Game
-    \`\`\`
-
-3. **Open \`index.html\` in your browser**.
-
-## Usage
-
-1. Open the \`index.html\` file in a web browser.
-2. Select the desired difficulty level.
-3. Follow the game instructions to complete the file allocation tasks.
-
-## Game Modes
-
-### Easy Mode
-
-- Single-level index allocation.
-- One index block and multiple direct data blocks.
-
-### Medium Mode
-
-- Two-level index allocation.
-- One primary index block pointing to secondary index blocks, which in turn point to data blocks.
-
-### Hard Mode
-
-- Multilevel index allocation with multiple files.
-- Each file uses three direct blocks and two indirect blocks.
-- Players complete one file at a time, ensuring a clear understanding of complex allocation methods.
+## Installation
+1. Clone the repository: `git clone https://github.com/yourusername/Indexed-Allocation-Game.git`
+2. Open `index.html` in your preferred web browser to start the game.
 
 ## License
+This project is licensed under the MIT License.
 
-Distributed under the MIT License. See \`LICENSE\` for more information.
+## Author
+Created by Your Name, 2024.
