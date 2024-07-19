@@ -7,17 +7,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     color: #333;
 }
 
-.start-page {
+.start-page, .difficulty-page, .game-page {
     text-align: center;
     padding: 40px 30px;
     background-color: #ffffff; /* White background */
     border-radius: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    max-width: 450px;
+    max-width: 900px;
     width: 100%;
 }
 
@@ -119,14 +119,31 @@ button:disabled {
     margin-bottom: 20px;
 }
 
-#action-button, #data-button, #restart-button {
+#action-button, #data-button, #restart-button, #back-button {
     margin-top: 20px;
+}
+
+#data-button {
+    background-color: #28a745; /* Green background for data button */
+}
+
+#data-button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+
+#instructions {
+    text-align: left;
+    margin-top: 20px;
+    color: #000000; /* Black text for instructions */
 }
 
 #instruction-text {
     margin-top: 20px;
     font-size: 18px;
+    color: #000000; /* Black text for instructions */
 }
+
 
 #control-panel {
     text-align: center;
@@ -143,7 +160,7 @@ button:disabled {
 }
 
 .light-blue {
-    background-color: lightblue;
+    background-color: rgb(121, 222, 255);
     color: white;
 }
 
@@ -152,7 +169,7 @@ button:disabled {
 }
 
 .glow-light-blue {
-    box-shadow: 0 0 10px 2px lightblue;
+    box-shadow: 0 0 10px 2px rgb(113, 217, 252);
 }
 
 .glow-orange {
@@ -168,7 +185,7 @@ button:disabled {
 }
 
 .glow-light-green {
-    box-shadow: 0 0 10px 2px lightgreen;
+    box-shadow: 0 0 10px 2px rgb(111, 245, 111);
 }
 
 .orange {
@@ -187,7 +204,7 @@ button:disabled {
 }
 
 .light-green {
-    background-color: lightgreen;
+    background-color: rgb(115, 252, 115);
     color: white;
 }
 
