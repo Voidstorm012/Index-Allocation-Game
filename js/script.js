@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataButton = document.getElementById('data-button');
     const restartButton = document.getElementById('restart-button');
     const instructionText = document.getElementById('instruction-text');
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get('result');
+    const titleElement = document.getElementById('result-title');
+    const descriptionElement = document.getElementById('result-description');
     let activateClick = false;
     let indexHighlighted = false;
     let dataActivated = false;
@@ -18,6 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedDataBoxes = new Set();
     let mode = new URLSearchParams(window.location.search).get('mode');
     let currentFile = 1;
+
+    if (result === 'win') {
+        titleElement.textContent = 'Congratulations!';
+        descriptionElement.textContent = 'You have completed the game.';
+        triggerConfetti();
+    } else if (result === 'lose') {
+        titleElement.textContent = 'Game Over';
+        descriptionElement.textContent = 'You have lost the game. Try again!';
+    }
 
     function generateUniqueNumbers(count, max, exclude = []) {
         const numbers = new Set(exclude);
@@ -115,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function checkWinCondition(dataBoxes) {
             if (selectedDataBoxes.size === dataBoxes.length) {
-                alert('Congratulations! You have followed the entire chain and won the game!');
+                window.location.href = `../result.html?result=win&mode=${mode}`;
             }
         }
 
@@ -208,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function checkWinCondition(dataBoxes) {
             if (selectedDataBoxes.size === dataBoxes.length) {
-                alert('Congratulations! You have followed the entire chain and won the game!');
+                window.location.href = `../result.html?result=win&mode=${mode}`;
             }
         }
 
@@ -431,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function checkWinCondition2() {
             if (selectedDataBoxes.size === dataBoxes2.length) {
-                alert('Congratulations! You have completed the second file and won the game!');
+                window.location.href = `../result.html?result=win&mode=${mode}`;
             }
         }
 
@@ -456,8 +469,41 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    function triggerConfetti() {
+        var end = Date.now() + (5 * 1000);
+    
+        (function frame() {
+            confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 }
+            });
+            confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 }
+            });
+    
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+    }
 
     restartButton.addEventListener('click', resetGame);
 
     initializeGame();
 });
+
+function restartGame() {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode');
+    window.location.href = `difficulty/${mode}Difficulty.html`;
+}
+
+function backToMainMenu() {
+    window.location.href = 'index.html';
+}   
