@@ -2,8 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const board = document.getElementById('board');
     const actionButton = document.getElementById('action-button');
     const dataButton = document.getElementById('data-button');
+    const hintButton = document.getElementById('hint-button');
     const restartButton = document.getElementById('restart-button');
     const instructionText = document.getElementById('instruction-text');
+    const allocationTableBody = document.getElementById('allocationTable').getElementsByTagName('tbody')[0];
     const params = new URLSearchParams(window.location.search);
     const result = params.get('result');
     const titleElement = document.getElementById('result-title');
@@ -22,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedDataBoxes = new Set();
     let mode = new URLSearchParams(window.location.search).get('mode');
     let currentFile = 1;
+    let hintActive = false;
+    let currentStep = 0;
 
     if (result === 'win') {
         titleElement.textContent = 'Congratulations!';
@@ -60,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
         dataBoxes = [];
         dataBoxes2 = [];
         currentFile = 1;
+        currentStep = 0;
+        allocationTableBody.innerHTML = '';
 
         if (mode === 'easy') {
             startEasyMode();
@@ -76,6 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const [indexNumber, ...dataNumbers] = generateUniqueNumbers(7, 144);
         const dataNumbersArray = [...dataNumbers];
 
+        // Update table with generated hints
+        updateTableEasy(indexNumber, dataNumbersArray);
+
         for (let i = 0; i < 144; i++) {
             const box = document.createElement('div');
             box.className = 'box';
@@ -89,17 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             box.addEventListener('click', () => {
                 if (activateClick) {
-                    if (box === indexBox && box.classList.contains('glow-blue')) {
-                        box.classList.remove('glow-blue');
+                    if (box === indexBox) {
                         box.classList.add('blue');
                         indexHighlighted = false;
-                        highlightDataBlocks(dataBoxes, 'green');
-                        actionButton.disabled = true;
                         dataButton.disabled = false;
                         activateClick = false;
                         instructionText.textContent = 'Select the data blocks by clicking the highlighted blocks.';
-                    } else if (dataActivated && box.classList.contains('glow-green')) {
-                        box.classList.remove('glow-green');
+                        updateTableEasy(indexNumber, dataNumbersArray);
+                    } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
                         box.classList.add('green');
                         selectedDataBoxes.add(box);
                         checkWinCondition(dataBoxes);
@@ -107,23 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
                         resetGame();
                     }
-                } else if (dataActivated && box.classList.contains('glow-green')) {
-                    box.classList.remove('glow-green');
+                } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
                     box.classList.add('green');
                     selectedDataBoxes.add(box);
                     checkWinCondition(dataBoxes);
-                } else if (dataActivated && !box.classList.contains('glow-green')) {
+                } else if (dataActivated && !dataNumbersArray.includes(parseInt(box.textContent))) {
                     alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
                     resetGame();
                 }
             });
             board.appendChild(box);
-        }
-
-        function highlightDataBlocks(dataBoxes, color) {
-            dataBoxes.forEach(box => {
-                box.classList.add(`glow-${color}`);
-            });
         }
 
         function checkWinCondition(dataBoxes) {
@@ -134,14 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         actionButton.addEventListener('click', () => {
             activateClick = true;
-            if (!indexHighlighted) {
-                indexBox.classList.add('glow-blue');
-                indexHighlighted = true;
-            }
         });
 
         dataButton.addEventListener('click', () => {
             dataActivated = true;
+        });
+
+        hintButton.addEventListener('click', () => {
+            hintActive = !hintActive;
+            toggleHints(indexBox, dataBoxes);
         });
     }
 
@@ -150,6 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const [indexNumber, ...secondaryIndexNumbers] = generateUniqueNumbers(3, 144);
         const dataNumbersArray = generateUniqueNumbers(6, 144).filter(num => !secondaryIndexNumbers.includes(num) && num !== indexNumber);
+
+        const indexDataMapping = {
+            [indexNumber]: secondaryIndexNumbers,
+            ...Object.fromEntries(secondaryIndexNumbers.map((secIndex, i) => [secIndex, dataNumbersArray.slice(i * 2, i * 2 + 2)]))
+        };
+
+        // Update table with generated hints
+        updateTableMedium(indexDataMapping);
 
         for (let i = 0; i < 144; i++) {
             const box = document.createElement('div');
@@ -166,15 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             box.addEventListener('click', () => {
                 if (activateClick) {
-                    if (box === indexBox && box.classList.contains('glow-blue')) {
-                        box.classList.remove('glow-blue');
+                    if (box === indexBox) {
                         box.classList.add('blue');
                         indexHighlighted = false;
                         highlightDirectIndexBlocks(directIndexBoxes);
                         actionButton.disabled = true;
                         instructionText.textContent = 'Now select the second-level index blocks by clicking the highlighted blocks.';
-                    } else if (directIndexBoxes.includes(box) && box.classList.contains('glow-blue')) {
-                        box.classList.remove('glow-blue');
+                    } else if (directIndexBoxes.includes(box)) {
                         box.classList.add('blue');
                         selectedDirectIndexes.add(box);
                         if (selectedDirectIndexes.size === directIndexBoxes.length) {
@@ -182,24 +188,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             dataButton.disabled = false;
                             instructionText.textContent = 'Select the data blocks by clicking the highlighted blocks.';
                         }
-                    } else if (dataActivated && box.classList.contains('glow-green')) {
-                        box.classList.remove('glow-green');
+                    } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
                         box.classList.add('green');
                         selectedDataBoxes.add(box);
                         checkWinCondition(dataBoxes);
                     } else if (!indexHighlighted && box !== indexBox) {
                         alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
                         resetGame();
-                    } else if (dataActivated && !box.classList.contains('glow-green')) {
+                    } else if (dataActivated && !dataNumbersArray.includes(parseInt(box.textContent))) {
                         alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
                         resetGame();
                     }
-                } else if (dataActivated && box.classList.contains('glow-green')) {
-                    box.classList.remove('glow-green');
+                } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
                     box.classList.add('green');
                     selectedDataBoxes.add(box);
                     checkWinCondition(dataBoxes);
-                } else if (dataActivated && !box.classList.contains('glow-green')) {
+                } else if (dataActivated && !dataNumbersArray.includes(parseInt(box.textContent))) {
                     alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
                     resetGame();
                 }
@@ -227,29 +231,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
         actionButton.addEventListener('click', () => {
             activateClick = true;
-            if (!indexHighlighted) {
-                indexBox.classList.add('glow-blue');
-                indexHighlighted = true;
-            }
         });
 
         dataButton.addEventListener('click', () => {
             dataActivated = true;
         });
+
+        hintButton.addEventListener('click', () => {
+            hintActive = !hintActive;
+            toggleHints(indexBox, dataBoxes);
+        });
     }
 
     function startHardMode() {
-        instructionText.textContent = 'Select the first index block by clicking the "Index" button and then the highlighted block.';
+        instructionText.textContent = 'Select the first direct index block by clicking the "Index" button and then the highlighted block.';
 
+        // Generate unique blocks for the first file
         const indexNumber1 = generateUniqueNumbers(1, 144)[0];
         const directIndexNumbers1 = generateUniqueNumbers(3, 144, [indexNumber1]);
         const indirectIndexNumbers1 = generateUniqueNumbers(2, 144, [indexNumber1, ...directIndexNumbers1]);
         const dataNumbersArray1 = generateUniqueNumbers(40, 144, [indexNumber1, ...directIndexNumbers1, ...indirectIndexNumbers1]);
 
-        const indexNumber2 = generateUniqueNumbers(1, 144, [indexNumber1, ...directIndexNumbers1, ...indirectIndexNumbers1, ...dataNumbersArray1])[0];
-        const directIndexNumbers2 = generateUniqueNumbers(3, 144, [indexNumber1, indexNumber2, ...directIndexNumbers1, ...indirectIndexNumbers1, ...dataNumbersArray1]);
-        const indirectIndexNumbers2 = generateUniqueNumbers(2, 144, [indexNumber1, indexNumber2, ...directIndexNumbers1, ...directIndexNumbers2, ...indirectIndexNumbers1, ...dataNumbersArray1]);
-        const dataNumbersArray2 = generateUniqueNumbers(40, 144, [indexNumber1, indexNumber2, ...directIndexNumbers1, ...directIndexNumbers2, ...indirectIndexNumbers1, ...indirectIndexNumbers2, ...dataNumbersArray1]);
+        // Generate unique blocks for the second file ensuring no overlap with the first file
+        const excludeBlocks = [indexNumber1, ...directIndexNumbers1, ...indirectIndexNumbers1, ...dataNumbersArray1];
+        const indexNumber2 = generateUniqueNumbers(1, 144, excludeBlocks)[0];
+        const directIndexNumbers2 = generateUniqueNumbers(3, 144, [indexNumber2, ...excludeBlocks]);
+        const indirectIndexNumbers2 = generateUniqueNumbers(2, 144, [indexNumber2, ...directIndexNumbers2, ...excludeBlocks]);
+        const dataNumbersArray2 = generateUniqueNumbers(40, 144, [indexNumber2, ...directIndexNumbers2, ...indirectIndexNumbers2, ...excludeBlocks]);
+
+        // Create index to data mapping
+        const indexDataMapping1 = {
+            [indexNumber1]: [...directIndexNumbers1, ...indirectIndexNumbers1],
+            ...Object.fromEntries(directIndexNumbers1.map((idx, i) => [idx, dataNumbersArray1.slice(i * 3, i * 3 + 3)])),
+            ...Object.fromEntries(indirectIndexNumbers1.map((idx, i) => [idx, dataNumbersArray1.slice((directIndexNumbers1.length + i) * 3, (directIndexNumbers1.length + i) * 3 + 3)]))
+        };
+
+        const indexDataMapping2 = {
+            [indexNumber2]: [...directIndexNumbers2, ...indirectIndexNumbers2],
+            ...Object.fromEntries(directIndexNumbers2.map((idx, i) => [idx, dataNumbersArray2.slice(i * 3, i * 3 + 3)])),
+            ...Object.fromEntries(indirectIndexNumbers2.map((idx, i) => [idx, dataNumbersArray2.slice((directIndexNumbers2.length + i) * 3, (directIndexNumbers2.length + i) * 3 + 3)]))
+        };
+
+        updateTableHard(indexNumber1, indexDataMapping1, true);
 
         for (let i = 0; i < 144; i++) {
             const box = document.createElement('div');
@@ -258,10 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (parseInt(box.textContent) === indexNumber1) {
                 indexBox = box;
-                box.classList.add('index1');
             } else if (parseInt(box.textContent) === indexNumber2) {
                 indexBox2 = box;
-                box.classList.add('index2');
             } else if (directIndexNumbers1.includes(parseInt(box.textContent))) {
                 box.classList.add('direct1');
                 directIndexBoxes.push(box);
@@ -285,109 +306,83 @@ document.addEventListener('DOMContentLoaded', () => {
             box.addEventListener('click', () => {
                 if (activateClick) {
                     if (currentFile === 1) {
-                        if (box === indexBox && box.classList.contains('glow-blue')) {
-                            box.classList.remove('glow-blue');
-                            box.classList.add('blue');
-                            indexHighlighted = false;
-                            highlightDirectIndexBlocks1();
-                            actionButton.disabled = true;
-                            instructionText.textContent = 'Now select the direct index blocks for file 1.';
-                        } else if (directIndexBoxes.includes(box) && box.classList.contains('glow-orange')) {
-                            box.classList.remove('glow-orange');
-                            box.classList.add('orange');
-                            selectedDirectIndexes.add(box);
-                            if (selectedDirectIndexes.size === directIndexNumbers1.length) {
-                                highlightIndirectIndexBlocks1();
-                                instructionText.textContent = 'Now select the indirect index blocks for file 1.';
-                            }
-                        } else if (indirectIndexBoxes.includes(box) && box.classList.contains('glow-orange')) {
-                            box.classList.remove('glow-orange');
-                            box.classList.add('orange');
-                            selectedIndirectIndexes.add(box);
-                            if (selectedIndirectIndexes.size === indirectIndexNumbers1.length) {
-                                highlightDataBlocks1();
-                                dataButton.disabled = false;
-                                instructionText.textContent = 'Select the data blocks for file 1 by clicking the highlighted blocks.';
-                            }
-                        } else if (dataActivated && box.classList.contains('glow-green')) {
-                            box.classList.remove('glow-green');
-                            box.classList.add('green');
-                            selectedDataBoxes.add(box);
-                            checkWinCondition1();
-                        } else if (!indexHighlighted && box !== indexBox) {
-                            alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
-                            resetGame();
-                        } else if (dataActivated && !box.classList.contains('glow-green')) {
-                            alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
-                            resetGame();
-                        }
+                        handleFile1Click(box, indexNumber1, indexDataMapping1, indexBox);
                     } else if (currentFile === 2) {
-                        if (box === indexBox2 && box.classList.contains('glow-light-blue')) {
-                            box.classList.remove('glow-light-blue');
-                            box.classList.add('light-blue');
-                            indexHighlighted = false;
-                            highlightDirectIndexBlocks2();
-                            actionButton.disabled = true;
-                            instructionText.textContent = 'Now select the direct index blocks for file 2.';
-                        } else if (directIndexBoxes.includes(box) && box.classList.contains('glow-light-orange')) {
-                            box.classList.remove('glow-light-orange');
-                            box.classList.add('light-orange');
-                            selectedDirectIndexes.add(box);
-                            if (selectedDirectIndexes.size === directIndexNumbers2.length) {
-                                highlightIndirectIndexBlocks2();
-                                instructionText.textContent = 'Now select the indirect index blocks for file 2.';
-                            }
-                        } else if (indirectIndexBoxes.includes(box) && box.classList.contains('glow-light-orange')) {
-                            box.classList.remove('glow-light-orange');
-                            box.classList.add('light-orange');
-                            selectedIndirectIndexes.add(box);
-                            if (selectedIndirectIndexes.size === indirectIndexNumbers2.length) {
-                                highlightDataBlocks2();
-                                dataButton.disabled = false;
-                                instructionText.textContent = 'Select the data blocks for file 2 by clicking the highlighted blocks.';
-                            }
-                        } else if (dataActivated && box.classList.contains('glow-light-green')) {
-                            box.classList.remove('glow-light-green');
-                            box.classList.add('light-green');
-                            selectedDataBoxes.add(box);
-                            checkWinCondition2();
-                        } else if (!indexHighlighted && box !== indexBox2) {
-                            alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
-                            resetGame();
-                        } else if (dataActivated && !box.classList.contains('glow-light-green')) {
-                            alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
-                            resetGame();
-                        }
+                        handleFile2Click(box, indexNumber2, indexDataMapping2, indexBox2);
                     }
-                } else if (dataActivated && box.classList.contains('glow-green')) {
-                    box.classList.remove('glow-green');
-                    box.classList.add('green');
-                    selectedDataBoxes.add(box);
-                    checkWinCondition1();
-                } else if (dataActivated && box.classList.contains('glow-light-green')) {
-                    box.classList.remove('glow-light-green');
-                    box.classList.add('light-green');
-                    selectedDataBoxes.add(box);
-                    checkWinCondition2();
-                } else if (dataActivated && !box.classList.contains('glow-green') && !box.classList.contains('glow-light-green')) {
-                    alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
-                    resetGame();
                 }
             });
             board.appendChild(box);
         }
 
-        function highlightDirectIndexBlocks1() {
-            directIndexNumbers1.forEach(index => {
-                const box = board.querySelector(`.box:nth-child(${index})`);
-                if (box) {
-                    box.classList.add('glow-orange');
-                }
-            });
+        function handleFile1Click(box, indexNumber, indexDataMapping, indexBox) {
+            if (box === indexBox) {
+                box.classList.add('blue');
+                indexHighlighted = false;
+                currentStep++;
+                highlightDirectIndexBlocks1();
+                actionButton.disabled = true;
+                instructionText.textContent = 'Now select the first direct index block for file 1.';
+            } else if (directIndexNumbers1.includes(parseInt(box.textContent))) {
+                handleDirectIndexClick(box, indexDataMapping, dataNumbersArray1, 'file 1');
+            } else if (indirectIndexNumbers1.includes(parseInt(box.textContent))) {
+                handleIndirectIndexClick(box, indexDataMapping, dataNumbersArray1, 'file 1');
+            } else if (dataActivated && dataNumbersArray1.includes(parseInt(box.textContent))) {
+                box.classList.add('green');
+                selectedDataBoxes.add(box);
+                checkWinCondition1();
+            } else if (!indexHighlighted && box !== indexBox) {
+                alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
+                resetGame();
+            } else if (dataActivated && !dataNumbersArray1.includes(parseInt(box.textContent))) {
+                alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
+                resetGame();
+            }
         }
 
-        function highlightIndirectIndexBlocks1() {
-            indirectIndexNumbers1.forEach(index => {
+        function handleFile2Click(box, indexNumber, indexDataMapping, indexBox) {
+            if (box === indexBox) {
+                box.classList.add('light-blue');
+                indexHighlighted = false;
+                currentStep++;
+                highlightDirectIndexBlocks2();
+                actionButton.disabled = true;
+                instructionText.textContent = 'Now select the first direct index block for file 2.';
+            } else if (directIndexNumbers2.includes(parseInt(box.textContent))) {
+                handleDirectIndexClick(box, indexDataMapping, dataNumbersArray2, 'file 2');
+            } else if (indirectIndexNumbers2.includes(parseInt(box.textContent))) {
+                handleIndirectIndexClick(box, indexDataMapping, dataNumbersArray2, 'file 2');
+            } else if (dataActivated && dataNumbersArray2.includes(parseInt(box.textContent))) {
+                box.classList.add('light-green');
+                selectedDataBoxes.add(box);
+                checkWinCondition2();
+            } else if (!indexHighlighted && box !== indexBox) {
+                alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
+                resetGame();
+            } else if (dataActivated && !dataNumbersArray2.includes(parseInt(box.textContent))) {
+                alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
+                resetGame();
+            }
+        }
+
+        function handleDirectIndexClick(box, indexDataMapping, dataNumbersArray, file) {
+            box.classList.add('orange');
+            selectedDirectIndexes.add(box);
+            dataButton.disabled = false;
+            highlightDataBlocks(indexDataMapping[parseInt(box.textContent)], 'green');
+            instructionText.textContent = `Select the data blocks for the direct index block for ${file}.`;
+        }
+
+        function handleIndirectIndexClick(box, indexDataMapping, dataNumbersArray, file) {
+            box.classList.add('orange');
+            selectedIndirectIndexes.add(box);
+            dataButton.disabled = false;
+            highlightIndirectDataBlocks(indexDataMapping[parseInt(box.textContent)], 'green');
+            instructionText.textContent = `Select the data blocks for the indirect index block for ${file}.`;
+        }
+
+        function highlightDirectIndexBlocks1() {
+            directIndexNumbers1.forEach(index => {
                 const box = board.querySelector(`.box:nth-child(${index})`);
                 if (box) {
                     box.classList.add('glow-orange');
@@ -404,6 +399,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        function highlightIndirectIndexBlocks1() {
+            indirectIndexNumbers1.forEach(index => {
+                const box = board.querySelector(`.box:nth-child(${index})`);
+                if (box) {
+                    box.classList.add('glow-orange');
+                }
+            });
+        }
+
         function highlightIndirectIndexBlocks2() {
             indirectIndexNumbers2.forEach(index => {
                 const box = board.querySelector(`.box:nth-child(${index})`);
@@ -413,15 +417,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        function highlightDataBlocks1() {
+        function highlightDataBlocks(dataBoxes, color) {
             dataBoxes.forEach(box => {
-                box.classList.add('glow-green');
+                const dataBox = board.querySelector(`.box:nth-child(${box})`);
+                if (dataBox) {
+                    dataBox.classList.add(`glow-${color}`);
+                }
             });
         }
 
-        function highlightDataBlocks2() {
-            dataBoxes2.forEach(box => {
-                box.classList.add('glow-light-green');
+        function highlightIndirectDataBlocks(dataBoxes, color) {
+            dataBoxes.forEach(box => {
+                const dataBox = board.querySelector(`.box:nth-child(${box})`);
+                if (dataBox) {
+                    dataBox.classList.add(`glow-${color}`);
+                }
             });
         }
 
@@ -437,8 +447,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedIndirectIndexes.clear();
                 selectedDataBoxes.clear();
                 indexHighlighted = false;
+                currentStep = 0;
+                updateTableHard(indexNumber2, indexDataMapping2, true);
                 indexBox2.classList.add('glow-light-blue');
-                instructionText.textContent = 'Select the second index blockF by clicking the "Index" button and then the highlighted block.';
+                instructionText.textContent = 'Select the second index block by clicking the "Index" button and then the highlighted block.';
             }
         }
 
@@ -450,29 +462,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
         actionButton.addEventListener('click', () => {
             activateClick = true;
-            if (!indexHighlighted) {
-                if (currentFile === 1) {
-                    indexBox.classList.add('glow-blue');
-                } else if (currentFile === 2) {
-                    indexBox2.classList.add('glow-light-blue');
-                }
-                indexHighlighted = true;
-            }
         });
 
         dataButton.addEventListener('click', () => {
             dataActivated = true;
+            actionButton.disabled = false; // Enable the "Index" button
+        });
+
+        hintButton.addEventListener('click', () => {
+            hintActive = !hintActive;
             if (currentFile === 1) {
-                highlightDataBlocks1();
+                toggleHints(indexBox, dataBoxes);
             } else if (currentFile === 2) {
-                highlightDataBlocks2();
+                toggleHints(indexBox2, dataBoxes2);
             }
         });
     }
-    
+
+    function updateTableEasy(indexBlock, dataBlocks) {
+        allocationTableBody.innerHTML = ''; // Clear the table before updating
+        const row = document.createElement('tr');
+        const indexCell = document.createElement('td');
+        const dataCell = document.createElement('td');
+
+        indexCell.innerText = indexBlock;
+        dataCell.innerText = dataBlocks.join(', ');
+
+        row.appendChild(indexCell);
+        row.appendChild(dataCell);
+        allocationTableBody.appendChild(row);
+    }
+
+    function updateTableMedium(indexDataMapping) {
+        allocationTableBody.innerHTML = ''; // Clear the table before updating
+        Object.entries(indexDataMapping).forEach(([indexBlock, dataBlocks]) => {
+            const row = document.createElement('tr');
+            const indexCell = document.createElement('td');
+            const dataCell = document.createElement('td');
+
+            indexCell.innerText = indexBlock;
+            dataCell.innerText = dataBlocks.join(', ');
+
+            row.appendChild(indexCell);
+            row.appendChild(dataCell);
+            allocationTableBody.appendChild(row);
+        });
+    }
+
+    function updateTableHard(initialIndex, indexDataMapping, reset = false) {
+        if (reset) {
+            allocationTableBody.innerHTML = ''; // Clear the table before updating
+        }
+        const row = document.createElement('tr');
+        const indexCell = document.createElement('td');
+        const dataCell = document.createElement('td');
+
+        indexCell.innerText = initialIndex;
+        dataCell.innerText = indexDataMapping[initialIndex].join(', ');
+
+        row.appendChild(indexCell);
+        row.appendChild(dataCell);
+        allocationTableBody.appendChild(row);
+    }
+
+    function toggleHints(indexBox, dataBoxes) {
+        if (hintActive) {
+            indexBox.classList.add('glow-blue');
+            dataBoxes.forEach(box => {
+                box.classList.add('glow-green');
+            });
+        } else {
+            indexBox.classList.remove('glow-blue');
+            dataBoxes.forEach(box => {
+                box.classList.remove('glow-green');
+            });
+        }
+    }
+
     function triggerConfetti() {
         var end = Date.now() + (5 * 1000);
-    
+
         (function frame() {
             confetti({
                 particleCount: 2,
@@ -486,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 spread: 55,
                 origin: { x: 1 }
             });
-    
+
             if (Date.now() < end) {
                 requestAnimationFrame(frame);
             }
@@ -506,4 +575,4 @@ function restartGame() {
 
 function backToMainMenu() {
     window.location.href = 'index.html';
-}   
+}

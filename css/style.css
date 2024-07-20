@@ -119,7 +119,7 @@ button:disabled {
     margin-bottom: 20px;
 }
 
-#action-button, #data-button, #restart-button, #back-button {
+#action-button, #data-button, #restart-button, #back-button, #hint-button {
     margin-top: 20px;
 }
 
@@ -320,4 +320,32 @@ button:disabled {
 .btn-custom:hover {
     background-color: #0056b3;
     transform: scale(1.05);
+}
+
+.allocation-table {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.allocation-table h5 {
+    margin-bottom: 10px;
+}
+
+.allocation-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.allocation-table th, .allocation-table td {
+    border: 1px solid #ddd;
+    padding: 4px; /* Reduced padding */
+}
+
+.allocation-table th {
+    background-color: #f2f2f2;
+    font-size: 0.9rem; /* Smaller font size */
+}
+
+.allocation-table td {
+    font-size: 0.9rem; /* Smaller font size */
 }

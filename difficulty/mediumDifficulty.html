@@ -24,6 +24,21 @@
                     <p id="instruction-text">Select the first-level index block by clicking the "Index" button and then the highlighted block.</p>
                     <button id="action-button" class="btn btn-primary mr-2">Index</button>
                     <button id="data-button" class="btn btn-success mr-2" disabled>Data</button>
+                    <button id="hint-button" class="btn btn-info">Hint</button>
+                </div>
+                <div id="table-container">
+                    <h5>Block Allocation Table</h5>
+                    <table id="allocationTable" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Index Block</th>
+                                <th>Points to</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table content will be dynamically added here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div id="game-container" class="col-md-8 d-flex align-items-center flex-column">

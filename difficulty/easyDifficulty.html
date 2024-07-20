@@ -24,6 +24,21 @@
                     <p id="instruction-text">Select the index block by clicking the "Index" button and then the highlighted block.</p>
                     <button id="action-button" class="btn btn-primary mr-2">Index</button>
                     <button id="data-button" class="btn btn-success mr-2" disabled>Data</button>
+                    <button id="hint-button" class="btn btn-info mr-2">Hint</button>
+                </div>
+                <div id="allocationTableContainer" class="allocation-table mt-3">
+                    <h5>Block Allocation Table</h5>
+                    <table id="allocationTable" class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Index Block</th>
+                                <th>Data Blocks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be added dynamically -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div id="game-container" class="col-md-8 d-flex align-items-center flex-column">
