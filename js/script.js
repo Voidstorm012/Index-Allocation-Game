@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startEasyMode() {
-        instructionText.textContent = 'Select the index block by clicking the "Index" button and then the highlighted block.';
+        instructionText.textContent = 'Select the index block by clicking the "Index" button, followed by the index block number.';
 
         const [indexNumber, ...dataNumbers] = generateUniqueNumbers(7, 144);
         const dataNumbersArray = [...dataNumbers];
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         indexHighlighted = false;
                         dataButton.disabled = false;
                         activateClick = false;
-                        instructionText.textContent = 'Select the data blocks by clicking the highlighted blocks.';
+                        instructionText.textContent = 'Select the data blocks by clicking the "Data" button, followed by the data block numbers.';
                         updateTableEasy(indexNumber, dataNumbersArray);
                     } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
                         box.classList.add('green');
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startMediumMode() {
-        instructionText.textContent = 'Select the first-level index block by clicking the "Index" button and then the highlighted block.';
+        instructionText.textContent = 'Select the first-level index block by clicking the "Index" button, followed by the index block number.';
 
         const [indexNumber, ...secondaryIndexNumbers] = generateUniqueNumbers(4, 144);
         const dataNumbersArray = generateUniqueNumbers(9, 144, [indexNumber, ...secondaryIndexNumbers]);
@@ -176,14 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         indexHighlighted = false;
                         highlightDirectIndexBlocks(directIndexBoxes);
                         actionButton.disabled = true;
-                        instructionText.textContent = 'Now select the second-level index blocks by clicking the highlighted blocks.';
+                        instructionText.textContent = 'Now select the second-level index block by clicking the index block numbers.';
                     } else if (directIndexBoxes.includes(box)) {
                         box.classList.add('blue');
                         selectedDirectIndexes.add(box);
                         if (selectedDirectIndexes.size === directIndexBoxes.length) {
                             highlightDataBlocks(dataBoxes, 'green');
                             dataButton.disabled = false;
-                            instructionText.textContent = 'Select the data blocks by clicking the highlighted blocks.';
+                            instructionText.textContent = 'Select the data blocks by clicking the "Data" button, followed by the data block numbers.';
                         }
                     } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
                         box.classList.add('green');
@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startHardMode() {
-        instructionText.textContent = 'Select the first direct index block by clicking the "Index" button and then the highlighted block.';
+        instructionText.textContent = 'Select the first direct index block by clicking the "Index" button, followed by the index block number.';
 
         // Generate unique blocks for the first file
         const indexNumber1 = generateUniqueNumbers(1, 144)[0];
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentStep = 0;
                 updateTableHard(indexNumber2, indexDataMapping2, true);
                 indexBox2.classList.add('glow-light-blue');
-                instructionText.textContent = 'Select the second index block by clicking the "Index" button and then the highlighted block.';
+                instructionText.textContent = 'Select the second index block by clicking the "Index" button, followed by the index block number.';
             }
         }
 
