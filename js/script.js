@@ -1,68 +1,79 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded and parsed');
     const board = document.getElementById('board');
     const actionButton = document.getElementById('action-button');
     const dataButton = document.getElementById('data-button');
     const hintButton = document.getElementById('hint-button');
     const restartButton = document.getElementById('restart-button');
     const instructionText = document.getElementById('instruction-text');
-    const allocationTableBody = document.getElementById('allocationTable').getElementsByTagName('tbody')[0];
+    const allocationTable = document.getElementById('allocationTable');
+    let allocationTableBody = null;
+
+    if (allocationTable) {
+        allocationTableBody = allocationTable.getElementsByTagName('tbody')[0];
+    }
+
     const params = new URLSearchParams(window.location.search);
     const result = params.get('result');
     const mode = params.get('mode');
-    const titleElement = document.getElementById('result-title');
-    const descriptionElement = document.getElementById('result-description');
     let activateClick = false;
-    let indexHighlighted = false;
     let dataActivated = false;
-    let indexBox;
-    let indexBox2;
-    let directIndexBoxes = [];
-    let indirectIndexBoxes = [];
-    let dataBoxes = [];
-    let dataBoxes2 = [];
-    let selectedDirectIndexes = new Set();
-    let selectedIndirectIndexes = new Set();
-    let selectedDataBoxes = new Set();
-    let currentFile = 1;
-    let hintActive = false;
+    let hintsVisible = false;
     let currentStep = 0;
+    let excludeBlocks = new Set();
+    let fileCount = 1;
+    let dataBoxes = []; // Define dataBoxes at the top level
+    let indexBox = null; // Define indexBox at the top level
+    let directIndexBoxes = [];
 
     if (result) {
+        console.log('Handling result page:', result, mode);
         handleResultPage(result, mode);
     } else {
         initializeGame();
     }
 
-    function generateUniqueNumbers(count, max, exclude = []) {
-        const numbers = new Set(exclude);
-        while (numbers.size < count + exclude.length) {
+    function generateUniqueNumbers(count, max, exclude = new Set()) {
+        console.log('Generating unique numbers:', count, max, exclude);
+        const numbers = new Set();
+        while (numbers.size < count) {
             const randomNumber = Math.floor(Math.random() * max) + 1;
-            numbers.add(randomNumber);
+            if (!exclude.has(randomNumber)) {
+                numbers.add(randomNumber);
+                exclude.add(randomNumber);
+            }
         }
-        return Array.from(numbers).filter(num => !exclude.includes(num));
+        return Array.from(numbers);
     }
 
     function resetGame() {
-        initializeGame();
+        console.log('Resetting game');
+        window.location.reload();
     }
 
     function initializeGame() {
+        console.log('Initializing game');
         board.innerHTML = '';
         actionButton.disabled = false;
         dataButton.disabled = true;
-        selectedDirectIndexes.clear();
-        selectedIndirectIndexes.clear();
-        selectedDataBoxes.clear();
         activateClick = false;
-        indexHighlighted = false;
         dataActivated = false;
-        directIndexBoxes = [];
-        indirectIndexBoxes = [];
-        dataBoxes = [];
-        dataBoxes2 = [];
-        currentFile = 1;
         currentStep = 0;
-        allocationTableBody.innerHTML = '';
+        excludeBlocks.clear();
+        if (allocationTableBody) {
+            allocationTableBody.innerHTML = '';
+        }
+        dataBoxes = []; // Clear dataBoxes
+        indexBox = null; // Clear indexBox
+        directIndexBoxes = [];
+
+        // Initialize 8x8 board
+        for (let i = 0; i < 64; i++) {
+            const box = document.createElement('div');
+            box.className = 'box';
+            box.textContent = i + 1;
+            board.appendChild(box);
+        }
 
         if (mode === 'easy') {
             startEasyMode();
@@ -73,431 +84,338 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function removeEventListeners() {
+        console.log('Removing event listeners');
+        const boxes = Array.from(board.getElementsByClassName('box'));
+        boxes.forEach(box => {
+            const newBox = box.cloneNode(true);
+            box.parentNode.replaceChild(newBox, box);
+        });
+    }
+
     function startEasyMode() {
-        instructionText.textContent = 'Select the index block by clicking the "Index" button, followed by the index block number.';
+        console.log('Starting easy mode');
+        instructionText.textContent = 'Select the index block by clicking the "Index" button and then the highlighted block.';
 
-        const [indexNumber, ...dataNumbers] = generateUniqueNumbers(7, 144);
-        const dataNumbersArray = [...dataNumbers];
+        removeEventListeners();
 
-        // Update table with generated hints
-        updateTableEasy(indexNumber, dataNumbersArray);
+        const [indexNumber, ...dataNumbersArray] = generateUniqueNumbers(7, 64, excludeBlocks);
+        console.log('Easy mode - Index number:', indexNumber, 'Data numbers:', dataNumbersArray);
+        excludeBlocks.add(indexNumber);
+        dataNumbersArray.forEach(num => excludeBlocks.add(num));
 
-        for (let i = 0; i < 144; i++) {
-            const box = document.createElement('div');
-            box.className = 'box';
-            box.textContent = i + 1;
+        if (allocationTableBody) {
+            updateTableEasy(indexNumber, dataNumbersArray);
+        }
 
-            if (parseInt(box.textContent) === indexNumber) {
+        const boxes = Array.from(board.getElementsByClassName('box'));
+        dataBoxes = [];
+        let selectedDataBoxes = new Set();
+
+        boxes.forEach(box => {
+            const boxNumber = parseInt(box.textContent);
+            if (boxNumber === indexNumber) {
                 indexBox = box;
-            } else if (dataNumbersArray.includes(parseInt(box.textContent))) {
+                //box.classList.add('glow-blue'); // Highlight the index block
+            } else if (dataNumbersArray.includes(boxNumber)) {
                 dataBoxes.push(box);
+                //box.classList.add('glow-green'); // Highlight the data blocks
             }
 
             box.addEventListener('click', () => {
                 if (activateClick) {
                     if (box === indexBox) {
                         box.classList.add('blue');
-                        indexHighlighted = false;
+                        actionButton.disabled = true;
                         dataButton.disabled = false;
                         activateClick = false;
-                        instructionText.textContent = 'Select the data blocks by clicking the "Data" button, followed by the data block numbers.';
-                        updateTableEasy(indexNumber, dataNumbersArray);
-                    } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
-                        box.classList.add('green');
-                        selectedDataBoxes.add(box);
-                        checkWinCondition(dataBoxes);
-                    } else if (box !== indexBox && !dataNumbersArray.includes(parseInt(box.textContent))) {
-                        alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
-                        resetGame();
+                        instructionText.textContent = 'Select the data blocks by clicking the highlighted blocks.';
                     }
-                } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
+                } else if (dataActivated && dataNumbersArray.includes(boxNumber)) {
                     box.classList.add('green');
                     selectedDataBoxes.add(box);
-                    checkWinCondition(dataBoxes);
-                } else if (dataActivated && !dataNumbersArray.includes(parseInt(box.textContent))) {
-                    alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
+                    checkEasyWinCondition(dataBoxes);
+                } else if (box !== indexBox && !dataNumbersArray.includes(boxNumber)) {
+                    alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
                     resetGame();
                 }
             });
-            board.appendChild(box);
-        }
+        });
 
-        function checkWinCondition(dataBoxes) {
+        function checkEasyWinCondition(dataBoxes) {
+            console.log('Checking easy win condition');
             if (selectedDataBoxes.size === dataBoxes.length) {
-                window.location.href = `../result.html?result=win&mode=${mode}`;
+                if (mode === 'hard') {
+                    currentStep++;
+                    instructionText.textContent = 'Proceeding to the medium mode steps...';
+                    actionButton.disabled = false; // Enable the action button for the next mode
+                    dataButton.disabled = true;
+                    toggleHints();
+                    startMediumMode();
+                } else {
+                    window.location.href = '../result.html?result=win&mode=easy';
+                }
             }
         }
 
         actionButton.addEventListener('click', () => {
+            console.log('Action button clicked');
             activateClick = true;
         });
 
         dataButton.addEventListener('click', () => {
+            console.log('Data button clicked');
             dataActivated = true;
-        });
-
-        hintButton.addEventListener('click', () => {
-            hintActive = !hintActive;
-            toggleHints(indexBox, dataBoxes);
         });
     }
 
     function startMediumMode() {
-        instructionText.textContent = 'Select the first-level index block by clicking the "Index" button, followed by the index block number.';
+        console.log('Starting medium mode');
+        instructionText.textContent = 'Select the first-level index block by clicking the "Index" button and then the highlighted block.';
 
-        const [indexNumber, ...secondaryIndexNumbers] = generateUniqueNumbers(4, 144);
-        const dataNumbersArray = generateUniqueNumbers(9, 144, [indexNumber, ...secondaryIndexNumbers]);
+        removeEventListeners();
 
-        const indexDataMapping = {
+        const [indexNumber, ...secondaryIndexNumbers] = generateUniqueNumbers(4, 64, excludeBlocks);
+        console.log('Medium mode - Index number:', indexNumber, 'Secondary index numbers:', secondaryIndexNumbers);
+        excludeBlocks.add(indexNumber);
+        secondaryIndexNumbers.forEach(num => excludeBlocks.add(num));
+        const dataNumbersArray = generateUniqueNumbers(12, 64, excludeBlocks);
+        console.log('Medium mode - Data numbers:', dataNumbersArray);
+        dataNumbersArray.forEach(num => excludeBlocks.add(num));
+
+        indexDataMapping = {
             [indexNumber]: secondaryIndexNumbers,
-            ...Object.fromEntries(secondaryIndexNumbers.map((secIndex, i) => [secIndex, dataNumbersArray.slice(i * 3, i * 3 + 3)]))
+            ...Object.fromEntries(secondaryIndexNumbers.map((secIndex, i) => [secIndex, dataNumbersArray.slice(i * 4, i * 4 + 4)]))
         };
 
-        // Update table with generated hints
-        updateTableMedium(indexDataMapping);
+        if (allocationTableBody) {
+            updateTableMedium(indexNumber, indexDataMapping);
+        }
 
-        for (let i = 0; i < 144; i++) {
-            const box = document.createElement('div');
-            box.className = 'box';
-            box.textContent = i + 1;
+        const boxes = Array.from(board.getElementsByClassName('box'));
+        directIndexBoxes = [];
+        let selectedDirectIndexes = new Set();
+        dataBoxes = [];
+        let selectedDataBoxes = new Set();
 
-            if (parseInt(box.textContent) === indexNumber) {
+        boxes.forEach(box => {
+            const boxNumber = parseInt(box.textContent);
+            if (boxNumber === indexNumber) {
                 indexBox = box;
-            } else if (secondaryIndexNumbers.includes(parseInt(box.textContent))) {
+                //box.classList.add('glow-blue'); // Highlight the index block
+            } else if (secondaryIndexNumbers.includes(boxNumber)) {
                 directIndexBoxes.push(box);
-            } else if (dataNumbersArray.includes(parseInt(box.textContent))) {
+                //box.classList.add('glow-blue'); // Highlight the secondary index blocks
+            } else if (dataNumbersArray.includes(boxNumber)) {
                 dataBoxes.push(box);
+                //box.classList.add('glow-green'); // Highlight the data blocks
             }
 
             box.addEventListener('click', () => {
+                console.log('Box clicked:', boxNumber);
                 if (activateClick) {
                     if (box === indexBox) {
                         box.classList.add('blue');
-                        indexHighlighted = false;
-                        highlightDirectIndexBlocks(directIndexBoxes);
-                        actionButton.disabled = true;
-                        instructionText.textContent = 'Now select the second-level index block by clicking the index block numbers.';
+                        actionButton.disabled = false;
+                        instructionText.textContent = 'Now select the second-level index blocks.';
                     } else if (directIndexBoxes.includes(box)) {
-                        box.classList.add('blue');
+                        box.classList.add('orange');
                         selectedDirectIndexes.add(box);
                         if (selectedDirectIndexes.size === directIndexBoxes.length) {
-                            highlightDataBlocks(dataBoxes, 'green');
+                            actionButton.disabled = true;
                             dataButton.disabled = false;
-                            instructionText.textContent = 'Select the data blocks by clicking the "Data" button, followed by the data block numbers.';
+                            instructionText.textContent = 'Select the data blocks.';
                         }
-                    } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
+                    } else if (dataActivated && dataNumbersArray.includes(boxNumber)) {
                         box.classList.add('green');
                         selectedDataBoxes.add(box);
-                        checkWinCondition(dataBoxes);
-                    } else if (!indexHighlighted && box !== indexBox) {
+                        checkMediumWinCondition(dataBoxes);
+                    } else if (!activateClick && box !== indexBox) {
                         alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
                         resetGame();
-                    } else if (dataActivated && !dataNumbersArray.includes(parseInt(box.textContent))) {
+                    } else if (dataActivated && !dataNumbersArray.includes(boxNumber)) {
                         alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
                         resetGame();
                     }
-                } else if (dataActivated && dataNumbersArray.includes(parseInt(box.textContent))) {
+                } else if (dataActivated && dataNumbersArray.includes(boxNumber)) {
                     box.classList.add('green');
                     selectedDataBoxes.add(box);
-                    checkWinCondition(dataBoxes);
-                } else if (dataActivated && !dataNumbersArray.includes(parseInt(box.textContent))) {
+                    checkMediumWinCondition(dataBoxes);
+                } else if (dataActivated && !dataNumbersArray.includes(boxNumber)) {
                     alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
                     resetGame();
                 }
             });
-            board.appendChild(box);
-        }
+        });
 
-        function highlightDirectIndexBlocks(directIndexBoxes) {
-            directIndexBoxes.forEach(box => {
-                box.classList.add('glow-blue');
-            });
-        }
-
-        function highlightDataBlocks(dataBoxes, color) {
-            dataBoxes.forEach(box => {
-                box.classList.add(`glow-${color}`);
-            });
-        }
-
-        function checkWinCondition(dataBoxes) {
+        function checkMediumWinCondition(dataBoxes) {
+            console.log('Checking medium win condition');
+            console.log('selectedDataBoxes.size:', selectedDataBoxes.size);
+            console.log('dataBoxes.length:', dataBoxes.length);
             if (selectedDataBoxes.size === dataBoxes.length) {
-                window.location.href = `../result.html?result=win&mode=${mode}`;
+                if (mode === 'hard') {
+                    if (fileCount === 1) { // Check if it's the first file
+                        fileCount++; // Increment the file count
+                        instructionText.textContent = 'Proceeding to the next file steps...';
+                        toggleHints();
+                        startNextFileInHardMode();
+                    } else {
+                        window.location.href = '../result.html?result=win&mode=hard';
+                    }
+                } else if (mode == 'medium') {
+                    window.location.href = '../result.html?result=win&mode=medium';
+                }
             }
         }
 
         actionButton.addEventListener('click', () => {
+            console.log('Action button clicked');
             activateClick = true;
         });
 
         dataButton.addEventListener('click', () => {
+            console.log('Data button clicked');
             dataActivated = true;
         });
+    }
 
-        hintButton.addEventListener('click', () => {
-            hintActive = !hintActive;
-            toggleHints(indexBox, dataBoxes);
+    function startDirectMode() {
+        console.log('Starting direct mode');
+        instructionText.textContent = 'Select the single data block.';
+
+        removeEventListeners();
+
+        const [dataBlock] = generateUniqueNumbers(1, 64, excludeBlocks);
+        console.log('Direct mode - Data block:', dataBlock);
+        excludeBlocks.add(dataBlock);
+
+        if (allocationTableBody) {
+            updateTableDirect(dataBlock);
+        }
+
+        const boxes = Array.from(board.getElementsByClassName('box'));
+        let selectedDataBlock = null;
+        dataBoxes = [];
+
+        boxes.forEach(box => {
+            const boxNumber = parseInt(box.textContent);
+            if (boxNumber === dataBlock) {
+                dataBoxes.push(box);
+                //box.classList.add('glow-green'); // Highlight the data block
+            }
+
+            box.addEventListener('click', () => {
+                console.log('Box clicked:', boxNumber);
+                if (dataActivated && boxNumber === dataBlock) {
+                    box.classList.add('green');
+                    selectedDataBlock = box;
+                    checkDirectWinCondition();
+                } else if (dataActivated && boxNumber !== dataBlock) {
+                    alert('Wrong block clicked! Restarting the game.');
+                    resetGame();
+                }
+            });
+        });
+
+        function checkDirectWinCondition() {
+            console.log('Checking direct win condition');
+            if (selectedDataBlock) {
+                if (mode === 'hard') {
+                    currentStep++;
+                    if (currentStep < 3) { // Run direct mode 3 times
+                        instructionText.textContent = `Direct Mode Step ${currentStep + 1}`;
+                        activateClick = false;
+                        dataActivated = true;
+                        toggleHints();
+                        startDirectMode();
+                    } else {
+                        instructionText.textContent = 'Proceeding to the easy mode step...';
+                        actionButton.disabled = false; // Enable the action button for the next mode
+                        dataButton.disabled = true;
+                        toggleHints();
+                        startEasyMode();
+                    }
+                } else {
+                    window.location.href = '../result.html?result=win&mode=direct';
+                }
+            }
+        }
+
+        actionButton.disabled = true;
+        dataButton.disabled = false;
+
+        dataButton.addEventListener('click', () => {
+            console.log('Data button clicked');
+            dataActivated = true;
         });
     }
 
     function startHardMode() {
-        instructionText.textContent = 'Select the first direct index block by clicking the "Index" button, followed by the index block number.';
+        console.log('Starting hard mode');
+        currentStep = 0;
+        fileCount = 1;
+        
+        hardSequence();
+    }
 
-        // Generate unique blocks for the first file
-        const indexNumber1 = generateUniqueNumbers(1, 144)[0];
-        const directIndexNumbers1 = generateUniqueNumbers(3, 144, [indexNumber1]);
-        const indirectIndexNumbers1 = generateUniqueNumbers(2, 144, [indexNumber1, ...directIndexNumbers1]);
-        const dataNumbersArray1 = generateUniqueNumbers(40, 144, [indexNumber1, ...directIndexNumbers1, ...indirectIndexNumbers1]);
+    function hardSequence() {
+        console.log('Running hard sequence, currentStep:', currentStep);
+        if (currentStep < 3) {
+            startDirectMode();
+        } else if (currentStep === 3) {
+            startEasyMode();
+        } else if (currentStep === 4) {
+            startMediumMode();
+        }
+    }
 
-        // Generate unique blocks for the second file ensuring no overlap with the first file
-        const excludeBlocks = [indexNumber1, ...directIndexNumbers1, ...indirectIndexNumbers1, ...dataNumbersArray1];
-        const indexNumber2 = generateUniqueNumbers(1, 144, excludeBlocks)[0];
-        const directIndexNumbers2 = generateUniqueNumbers(3, 144, [indexNumber2, ...excludeBlocks]);
-        const indirectIndexNumbers2 = generateUniqueNumbers(2, 144, [indexNumber2, ...directIndexNumbers2, ...excludeBlocks]);
-        const dataNumbersArray2 = generateUniqueNumbers(40, 144, [indexNumber2, ...directIndexNumbers2, ...indirectIndexNumbers2, ...excludeBlocks]);
-
-        // Create index to data mapping
-        const indexDataMapping1 = {
-            [indexNumber1]: [...directIndexNumbers1, ...indirectIndexNumbers1],
-            ...Object.fromEntries(directIndexNumbers1.map((idx, i) => [idx, dataNumbersArray1.slice(i * 3, i * 3 + 3)])),
-            ...Object.fromEntries(indirectIndexNumbers1.map((idx, i) => [idx, dataNumbersArray1.slice((directIndexNumbers1.length + i) * 3, (directIndexNumbers1.length + i) * 3 + 3)]))
-        };
-
-        const indexDataMapping2 = {
-            [indexNumber2]: [...directIndexNumbers2, ...indirectIndexNumbers2],
-            ...Object.fromEntries(directIndexNumbers2.map((idx, i) => [idx, dataNumbersArray2.slice(i * 3, i * 3 + 3)])),
-            ...Object.fromEntries(indirectIndexNumbers2.map((idx, i) => [idx, dataNumbersArray2.slice((directIndexNumbers2.length + i) * 3, (directIndexNumbers2.length + i) * 3 + 3)]))
-        };
-
-        updateTableHard(indexNumber1, indexDataMapping1, true);
-
-        for (let i = 0; i < 144; i++) {
-            const box = document.createElement('div');
-            box.className = 'box';
-            box.textContent = i + 1;
-
-            if (parseInt(box.textContent) === indexNumber1) {
-                indexBox = box;
-            } else if (parseInt(box.textContent) === indexNumber2) {
-                indexBox2 = box;
-            } else if (directIndexNumbers1.includes(parseInt(box.textContent))) {
-                box.classList.add('direct1');
-                directIndexBoxes.push(box);
-            } else if (indirectIndexNumbers1.includes(parseInt(box.textContent))) {
-                box.classList.add('indirect1');
-                indirectIndexBoxes.push(box);
-            } else if (directIndexNumbers2.includes(parseInt(box.textContent))) {
-                box.classList.add('direct2');
-                directIndexBoxes.push(box);
-            } else if (indirectIndexNumbers2.includes(parseInt(box.textContent))) {
-                box.classList.add('indirect2');
-                indirectIndexBoxes.push(box);
-            } else if (dataNumbersArray1.includes(parseInt(box.textContent))) {
-                box.classList.add('data1');
-                dataBoxes.push(box);
-            } else if (dataNumbersArray2.includes(parseInt(box.textContent))) {
-                box.classList.add('data2');
-                dataBoxes2.push(box);
+    function startNextFileInHardMode() {
+        console.log('Starting next file in hard mode');
+        if (currentStep === 4) {
+            if (allocationTableBody) {
+                allocationTableBody.innerHTML = ''; // Clear the table
             }
-
-            box.addEventListener('click', () => {
-                if (activateClick) {
-                    if (currentFile === 1) {
-                        handleFile1Click(box, indexNumber1, indexDataMapping1, indexBox);
-                    } else if (currentFile === 2) {
-                        handleFile2Click(box, indexNumber2, indexDataMapping2, indexBox2);
-                    }
-                }
-            });
-            board.appendChild(box);
+            currentStep = 0;
+            instructionText.textContent = 'Proceeding to the second file...';
+            setTimeout(() => {
+                allocationTableTitle.textContent = 'Block Allocation Table (File 02).';
+                hardSequence();
+            }, 2000); // Wait for 2 seconds before starting the next file
         }
-
-        function handleFile1Click(box, indexNumber, indexDataMapping, indexBox) {
-            if (box === indexBox) {
-                box.classList.add('blue');
-                indexHighlighted = false;
-                currentStep++;
-                highlightDirectIndexBlocks1();
-                actionButton.disabled = true;
-                instructionText.textContent = 'Now select the first direct index block for file 1.';
-            } else if (directIndexNumbers1.includes(parseInt(box.textContent))) {
-                handleDirectIndexClick(box, indexDataMapping, dataNumbersArray1, 'file 1');
-            } else if (indirectIndexNumbers1.includes(parseInt(box.textContent))) {
-                handleIndirectIndexClick(box, indexDataMapping, dataNumbersArray1, 'file 1');
-            } else if (dataActivated && dataNumbersArray1.includes(parseInt(box.textContent))) {
-                box.classList.add('green');
-                selectedDataBoxes.add(box);
-                checkWinCondition1();
-            } else if (!indexHighlighted && box !== indexBox) {
-                alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
-                resetGame();
-            } else if (dataActivated && !dataNumbersArray1.includes(parseInt(box.textContent))) {
-                alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
-                resetGame();
-            }
-        }
-
-        function handleFile2Click(box, indexNumber, indexDataMapping, indexBox) {
-            if (box === indexBox) {
-                box.classList.add('light-blue');
-                indexHighlighted = false;
-                currentStep++;
-                highlightDirectIndexBlocks2();
-                actionButton.disabled = true;
-                instructionText.textContent = 'Now select the first direct index block for file 2.';
-            } else if (directIndexNumbers2.includes(parseInt(box.textContent))) {
-                handleDirectIndexClick(box, indexDataMapping, dataNumbersArray2, 'file 2');
-            } else if (indirectIndexNumbers2.includes(parseInt(box.textContent))) {
-                handleIndirectIndexClick(box, indexDataMapping, dataNumbersArray2, 'file 2');
-            } else if (dataActivated && dataNumbersArray2.includes(parseInt(box.textContent))) {
-                box.classList.add('light-green');
-                selectedDataBoxes.add(box);
-                checkWinCondition2();
-            } else if (!indexHighlighted && box !== indexBox) {
-                alert('Wrong block clicked! You clicked a block that is not part of the file. Restarting the game.');
-                resetGame();
-            } else if (dataActivated && !dataNumbersArray2.includes(parseInt(box.textContent))) {
-                alert('Wrong data block clicked! This block is not part of the file according to the index block. Restarting the game.');
-                resetGame();
-            }
-        }
-
-        function handleDirectIndexClick(box, indexDataMapping, dataNumbersArray, file) {
-            box.classList.add('orange');
-            selectedDirectIndexes.add(box);
-            dataButton.disabled = false;
-            highlightDataBlocks(indexDataMapping[parseInt(box.textContent)], 'green');
-            instructionText.textContent = `Select the data blocks for the direct index block for ${file}.`;
-        }
-
-        function handleIndirectIndexClick(box, indexDataMapping, dataNumbersArray, file) {
-            box.classList.add('orange');
-            selectedIndirectIndexes.add(box);
-            dataButton.disabled = false;
-            highlightIndirectDataBlocks(indexDataMapping[parseInt(box.textContent)], 'green');
-            instructionText.textContent = `Select the data blocks for the indirect index block for ${file}.`;
-        }
-
-        function highlightDirectIndexBlocks1() {
-            directIndexNumbers1.forEach(index => {
-                const box = board.querySelector(`.box:nth-child(${index})`);
-                if (box) {
-                    box.classList.add('glow-orange');
-                }
-            });
-        }
-
-        function highlightDirectIndexBlocks2() {
-            directIndexNumbers2.forEach(index => {
-                const box = board.querySelector(`.box:nth-child(${index})`);
-                if (box) {
-                    box.classList.add('glow-light-orange');
-                }
-            });
-        }
-
-        function highlightIndirectIndexBlocks1() {
-            indirectIndexNumbers1.forEach(index => {
-                const box = board.querySelector(`.box:nth-child(${index})`);
-                if (box) {
-                    box.classList.add('glow-orange');
-                }
-            });
-        }
-
-        function highlightIndirectIndexBlocks2() {
-            indirectIndexNumbers2.forEach(index => {
-                const box = board.querySelector(`.box:nth-child(${index})`);
-                if (box) {
-                    box.classList.add('glow-light-orange');
-                }
-            });
-        }
-
-        function highlightDataBlocks(dataBoxes, color) {
-            dataBoxes.forEach(box => {
-                const dataBox = board.querySelector(`.box:nth-child(${box})`);
-                if (dataBox) {
-                    dataBox.classList.add(`glow-${color}`);
-                }
-            });
-        }
-
-        function highlightIndirectDataBlocks(dataBoxes, color) {
-            dataBoxes.forEach(box => {
-                const dataBox = board.querySelector(`.box:nth-child(${box})`);
-                if (dataBox) {
-                    dataBox.classList.add(`glow-${color}`);
-                }
-            });
-        }
-
-        function checkWinCondition1() {
-            if (selectedDataBoxes.size === dataBoxes.length) {
-                alert('Congratulations! You have completed the first file!');
-                currentFile = 2;
-                actionButton.disabled = false;
-                dataButton.disabled = true;
-                activateClick = false;
-                dataActivated = false;
-                selectedDirectIndexes.clear();
-                selectedIndirectIndexes.clear();
-                selectedDataBoxes.clear();
-                indexHighlighted = false;
-                currentStep = 0;
-                updateTableHard(indexNumber2, indexDataMapping2, true);
-                indexBox2.classList.add('glow-light-blue');
-                instructionText.textContent = 'Select the second index block by clicking the "Index" button, followed by the index block number.';
-            }
-        }
-
-        function checkWinCondition2() {
-            if (selectedDataBoxes.size === dataBoxes2.length) {
-                window.location.href = `../result.html?result=win&mode=${mode}`;
-            }
-        }
-
-        actionButton.addEventListener('click', () => {
-            activateClick = true;
-        });
-
-        dataButton.addEventListener('click', () => {
-            dataActivated = true;
-            actionButton.disabled = false; // Enable the "Index" button
-        });
-
-        hintButton.addEventListener('click', () => {
-            hintActive = !hintActive;
-            if (currentFile === 1) {
-                toggleHints(indexBox, dataBoxes);
-            } else if (currentFile === 2) {
-                toggleHints(indexBox2, dataBoxes2);
-            }
-        });
     }
 
     function updateTableEasy(indexBlock, dataBlocks) {
-        allocationTableBody.innerHTML = ''; // Clear the table before updating
+        if (!allocationTableBody) return;
+        console.log('Updating table for easy mode', indexBlock, dataBlocks);
         const row = document.createElement('tr');
         const indexCell = document.createElement('td');
         const dataCell = document.createElement('td');
 
-        indexCell.innerText = indexBlock;
-        dataCell.innerText = dataBlocks.join(', ');
+        indexCell.innerText = `${indexBlock}`;
+        dataCell.innerText = `${dataBlocks.join(', ')}`;
 
         row.appendChild(indexCell);
         row.appendChild(dataCell);
         allocationTableBody.appendChild(row);
     }
 
-    function updateTableMedium(indexDataMapping) {
-        allocationTableBody.innerHTML = ''; // Clear the table before updating
+    
+    function updateTableMedium(initialIndex, indexDataMapping) {
+        if (!allocationTableBody) return;
+        console.log('Updating table for medium mode', initialIndex, indexDataMapping);
+        const initialRow = document.createElement('tr');
+        const initialIndexCell = document.createElement('td');
+        initialIndexCell.colSpan = 2;
+        initialIndexCell.innerText = `Initial Index: ${initialIndex}`;
+        initialRow.appendChild(initialIndexCell);
+        allocationTableBody.appendChild(initialRow);
+
         Object.entries(indexDataMapping).forEach(([indexBlock, dataBlocks]) => {
             const row = document.createElement('tr');
             const indexCell = document.createElement('td');
             const dataCell = document.createElement('td');
 
-            indexCell.innerText = indexBlock;
+            indexCell.innerText = `${indexBlock}`;
             dataCell.innerText = dataBlocks.join(', ');
 
             row.appendChild(indexCell);
@@ -506,40 +424,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function updateTableHard(initialIndex, indexDataMapping, reset = false) {
-        if (reset) {
-            allocationTableBody.innerHTML = ''; // Clear the table before updating
-        }
+    function updateTableDirect(dataBlock) {
+        if (!allocationTableBody) return;
+        console.log('Updating table for direct mode', dataBlock);
         const row = document.createElement('tr');
         const indexCell = document.createElement('td');
         const dataCell = document.createElement('td');
 
-        indexCell.innerText = initialIndex;
-        dataCell.innerText = indexDataMapping[initialIndex].join(', ');
+        indexCell.innerText = '';
+        dataCell.innerText = `Direct Data Block: ${dataBlock}`;
 
         row.appendChild(indexCell);
         row.appendChild(dataCell);
         allocationTableBody.appendChild(row);
     }
 
-    function toggleHints(indexBox, dataBoxes) {
-        if (hintActive) {
-            indexBox.classList.add('glow-blue');
-            dataBoxes.forEach(box => {
-                box.classList.add('glow-green');
-            });
-        } else {
-            indexBox.classList.remove('glow-blue');
-            dataBoxes.forEach(box => {
-                box.classList.remove('glow-green');
-            });
-        }
-    }
-
     function handleResultPage(result, mode) {
+        console.log('Handling result page', result, mode);
+        const titleElement = document.getElementById('result-title');
+        const descriptionElement = document.getElementById('result-description');
         titleElement.textContent = result === 'win' ? 'Congratulations!' : 'Game Over';
         descriptionElement.textContent = result === 'win'
-            ? `You have completed the game in ${mode} mode.`
+            ? `You have completed the game!`
             : 'You have lost the game. Try again!';
         if (result === 'win') {
             triggerConfetti();
@@ -547,6 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function triggerConfetti() {
+        console.log('Triggering confetti');
         var end = Date.now() + (5 * 1000);
 
         (function frame() {
@@ -569,18 +476,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }());
     }
 
+    function toggleHints() {
+        console.log('Toggling hints');
+        const boxes = Array.from(board.getElementsByClassName('box'));
+        hintsVisible = !hintsVisible;
+        boxes.forEach(box => {
+            const boxNumber = parseInt(box.textContent);
+            if (box.classList.contains('blue') || box.classList.contains('green') || box.classList.contains('orange')) {
+                box.classList.remove('glow-blue', 'glow-green', 'glow-orange');
+            } else {
+                if (hintsVisible) {
+                    console.log('Showing glow classes');
+                    if (box === indexBox) {
+                        box.classList.add('glow-blue');
+                    } else if (dataBoxes.includes(box)) {
+                        box.classList.add('glow-green');
+                    } else if (directIndexBoxes.includes(box)) {
+                        box.classList.add('glow-orange');
+                    }
+                } else if (!hintsVisible) {
+                    console.log('Removing glow classes');
+                    box.classList.remove('glow-blue', 'glow-green', 'glow-orange');
+                }
+            }
+        });
+    }
+
     restartButton.addEventListener('click', resetGame);
+
+    hintButton.addEventListener('click', toggleHints);
 
     initializeGame();
 });
 
 function restartGame() {
+    console.log('Restarting game');
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
     window.location.href = `difficulty/${mode}Difficulty.html`;
 }
 
 function backToMainMenu() {
+    console.log('Going back to main menu');
     window.location.href = 'index.html';
 }
-     
