@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startEasyMode() {
         console.log('Starting easy mode');
-        instructionText.textContent = 'Select the index block by clicking the "Index" button and then the highlighted block.';
+        instructionText.textContent = 'Select the index block by clicking the "Index" button, followed by the index block number.';
 
         removeEventListeners();
 
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         actionButton.disabled = true;
                         dataButton.disabled = false;
                         activateClick = false;
-                        instructionText.textContent = 'Select the data blocks by clicking the highlighted blocks.';
+                        instructionText.textContent = 'Select the data block by clicking the "Data" button, followed by the data block numbers.';
                     }
                 } else if (dataActivated && dataNumbersArray.includes(boxNumber)) {
                     box.classList.add('green');
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startMediumMode() {
         console.log('Starting medium mode');
-        instructionText.textContent = 'Select the first-level index block by clicking the "Index" button and then the highlighted block.';
+        instructionText.textContent = 'Select the first-level index block by clicking the "Index" button, followed by the first index block number.';
 
         removeEventListeners();
 
@@ -217,14 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (box === indexBox) {
                         box.classList.add('blue');
                         actionButton.disabled = false;
-                        instructionText.textContent = 'Now select the second-level index blocks.';
+                        instructionText.textContent = 'Now select the second-level index block numbers.';
                     } else if (directIndexBoxes.includes(box)) {
                         box.classList.add('orange');
                         selectedDirectIndexes.add(box);
                         if (selectedDirectIndexes.size === directIndexBoxes.length) {
                             actionButton.disabled = true;
                             dataButton.disabled = false;
-                            instructionText.textContent = 'Select the data blocks.';
+                            instructionText.textContent = 'Select the data block by clicking the "Data" button, followed by the data block numbers.';
                         }
                     } else if (dataActivated && dataNumbersArray.includes(boxNumber)) {
                         box.classList.add('green');
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startDirectMode() {
         console.log('Starting direct mode');
-        instructionText.textContent = 'Select the single data block.';
+        instructionText.textContent = 'Select the data block by clicking the "Data" button, followed by the direct data blocks.';
 
         removeEventListeners();
 
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentStep = 0;
             instructionText.textContent = 'Proceeding to the second file...';
             setTimeout(() => {
-                allocationTableTitle.textContent = 'Block Allocation Table (File 02).';
+                allocationTableTitle.textContent = '(File 02)';
                 hardSequence();
             }, 2000); // Wait for 2 seconds before starting the next file
         }
