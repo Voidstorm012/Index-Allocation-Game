@@ -465,3 +465,66 @@ body {
 .active, .dot:hover {
     background-color: #717171;
 }
+
+.slide {
+    display: none;
+    padding: 20px;
+    text-align: center;
+}
+
+.slide.active {
+    display: block;
+}
+
+ul {
+    list-style-type: none; /* Removes the dots from the lists */
+    padding: 0;
+}
+
+.nav-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 25px;
+    height: 25px;
+}
+
+audio {
+    margin-top: 20px;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-container img {
+    max-width: 45%; /* Adjust the percentage as needed */
+    margin: 0 5px; /* Space between images */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust this value to lower the button more */
+}

@@ -12,40 +12,158 @@
 
 <div class="slideshow-container">
     <div class="slides">
-        <img src="images/slides/Slide1.jpg" style="width:100%">
+        <div class="content">
+            <h1>Welcome to Index Allocation</h1>
+            <p>Indexed Allocation is a method of managing file storage on a disk. In this system, an index block contains pointers to the actual data blocks of a file, allowing efficient access and organization of data.</p>
+            <audio controls autoplay>
+                <source src="audio/1.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide2.jpg" style="width:100%">
+        <div class="content">
+            <h1>Structure of Indexed Allocation</h1>
+            <div class="image-container">
+                <img src="images/structure.png" alt="Structure of Indexed Allocation" class="img-fluid">
+            </div>
+            <p>Here is the structure of indexed allocation. In this method, an index block contains pointers to all the data blocks of a file. For example, index block 19 holds references to the actual data blocks such as blocks 2, 10, 11, 24, 25, 26, and 27 for the file "jeep." The index block allows efficient access to file data, while the data blocks store the actual file content. This structure ensures that the system can quickly locate and read the data by referencing the index block.</p>
+            <audio controls autoplay>
+                <source src="audio/2.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide3.jpg" style="width:100%">
+        <div class="content">
+            <h1>Three Mechanisms for Index Block</h1>
+            <p>We have three different mechanisms for Index Block. Linked scheme, Multilevel Index, and Combined Scheme.</p>
+            <audio controls autoplay>
+                <source src="audio/3.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide4.jpg" style="width:100%">
+        <div class="content">
+            <h1>Linked Scheme</h1>
+            <div class="image-container">
+                <img src="images/linkedscheme.png" alt="Linked Scheme" class="img-fluid">
+                <img src="images/1.png" alt="Game Linked Scheme" class="img-fluid">
+            </div>
+            <p>In the linked scheme, each index block serves as an individual storage unit. For large files, multiple index blocks are interconnected to manage the data efficiently. In the image on the right, taken from our game, the blue block represents an index block, while the green blocks are the data blocks. Notice how the data blocks are connected to the index block, illustrating the concept of linked indexing.</p>
+            <audio controls autoplay>
+                <source src="audio/4.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+    
+    <div class="slides">
+        <div class="content">
+            <h1>Linked Scheme</h1>
+            <h2>Advantages</h2>
+            <ul>
+                <li><b>Simplicity:</b> The linked scheme is straightforward to implement. Each block contains a pointer to the next block, forming a linked list.</li>
+                <li><b>Efficient Sequential Access:</b> Good for sequential file access since it follows the natural order of data storage.</li>
+                <li><b>Dynamic File Size:</b> Files can grow and shrink dynamically, and there is no need to pre-allocate contiguous storage space</li>
+            </ul>
+            <h2>Disadvantages</h2>
+            <ul>
+                <li><b>Random Access Inefficiency:</b> Random access is slow because it requires traversing the linked list from the beginning.</li>
+                <li><b>Overhead:</b> There is additional overhead for storing pointers in each block, reducing the actual data storage capacity.</li>
+                <li><b>Reliability Issues:</b> If a block is corrupted, it can lead to a loss of the entire file due to broken links.</li>
+            </ul>
+            <audio controls autoplay>
+                <source src="audio/5.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide5.jpg" style="width:100%">
+        <div class="content">
+            <h1>Multilevel Index</h1>
+            <div class="image-container">
+                <img src="images/multilevel.png" alt="Multilevel Index" class="img-fluid">
+                <img src="images/2.png" alt="Game Multilevel Index" class="img-fluid">
+                <img src="images/3.png" alt="Game Multilevel Index" class="img-fluid">
+            </div>
+            
+            <p>This method uses a hierarchical structure, where a first-level index block points to multiple second-level index blocks, which then point to the actual file data blocks. This organization efficiently manages and accesses large files. In the image, you can observe how the second-level index blocks connect to the first-level index block in the middle. The data blocks are then linked to the second-level index blocks in the right image.</p>
+            <audio controls autoplay>
+                <source src="audio/6.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide6.jpg" style="width:100%">
+        <div class="content">
+            <h1>Multilevel Index</h1>
+            <h2>Advantages</h2>
+            <ul>
+                <li><b>Improved Random Access:</b> Provides efficient random access by using a hierarchical index structure, reducing the number of accesses needed to locate a block.</li>
+                <li><b>Scalability:</b> Can handle large files by using multiple levels of indexing.</li>
+                <li><b>Efficient Disk Utilization:</b> Reduces fragmentation and makes better use of disk space compared to linked schemes.</li>
+            </ul>
+            <h2>Disadvantages</h2>
+            <ul>
+                <li><b>Complexity:</b> More complex to implement and manage than the linked scheme.</li>
+                <li><b>Index Overhead:</b> Requires additional storage for index blocks, which can be significant for very large files.</li>
+                <li><b>Access Time:</b> Accessing a block may require multiple disk accesses to traverse the index levels.</li>
+            </ul>
+            <audio controls autoplay>
+                <source src="audio/7.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide7.jpg" style="width:100%">
+        <div class="content">
+            <h1>Combined Scheme</h1>
+            <div class="image-container">
+                <img src="images/combined.png" alt="Combined Scheme" class="img-fluid">
+                <img src="images/4.png" alt="Game Combined Scheme" class="img-fluid">
+            </div>
+            <p>In this approach, some index blocks directly point to data blocks, while others point to multilevel index blocks, which further reference the data blocks. This hybrid method optimizes storage and access for varying file sizes and structures. You can also see an example of a single direct data block from our game in the image on the right. This scheme combines with the previous two methods for an optimized approach.</p>
+            <audio controls autoplay>
+                <source src="audio/8.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide8.jpg" style="width:100%">
+        <div class="content">
+            <h1>Combined Scheme</h1>
+            <h2>Advantages</h2>
+            <ul>
+                <li><b>Balanced Performance:</b> Combines the benefits of both linked and indexed schemes, providing a balance between sequential and random access performance.</li>
+                <li><b>Reduced Fragmentation:</b> Helps in reducing external fragmentation by allowing non-contiguous storage.</li>
+                <li><b>Flexibility:</b> Can handle both small and large files efficiently by using an index for direct access and linked blocks for overflow.</li>
+            </ul>
+            <h2>Disadvantages</h2>
+            <ul>
+                <li><b>Increased Complexity:</b> More complex to implement and maintain compared to simpler schemes.</li>
+                <li><b>Overhead:</b> Additional overhead for both index storage and pointers in linked blocks.</li>
+                <li><b>Management Challenges:</b> More challenging to manage, especially in terms of keeping the index and links consistent and handling errors.</li>
+            </ul>
+            <audio controls autoplay>
+                <source src="audio/9.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
     </div>
     <div class="slides">
-        <img src="images/slides/Slide9.jpg" style="width:100%">
-    </div>
-    <div class="slides">
-        <img src="images/slides/Slide10.jpg" style="width:100%">
-    </div>
-    <div class="slides">
-        <img src="images/slides/Slide11.jpg" style="width:100%">
-    </div>
-    <div class="slides">
-        <img src="images/slides/Slide12.jpg" style="width:100%">
+        <div class="content">
+            <h1>Let's Play the Game</h1>
+            <p>You can now try the game and test your knowledge of index allocation. We've removed the arrows to make it more challenging. If you need assistance, feel free to use the hint button for guidance. Good luck!</p>
+            <audio controls autoplay>
+                <source src="audio/10.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+            <div class="button-container">
+                <button class="btn btn-success" onclick="navigateTo('levels.html')">Let's Go!</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -60,8 +178,6 @@
     <span class="dot" onclick="currentSlide(8)"></span>
     <span class="dot" onclick="currentSlide(9)"></span>
     <span class="dot" onclick="currentSlide(10)"></span>
-    <span class="dot" onclick="currentSlide(11)"></span>
-    <span class="dot" onclick="currentSlide(12)"></span>
 </div>
 
 <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
@@ -93,6 +209,10 @@
         }
         slides[slideIndex - 1].style.display = "block";
         dots[slideIndex - 1].className += " active";
+    }
+
+    function navigateTo(url) {
+        window.location.href = url;
     }
 </script>
 
