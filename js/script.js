@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const allocationTableBody = document.getElementById('allocationTable').getElementsByTagName('tbody')[0];
     const params = new URLSearchParams(window.location.search);
     const result = params.get('result');
+    const mode = params.get('mode');
     const titleElement = document.getElementById('result-title');
     const descriptionElement = document.getElementById('result-description');
     let activateClick = false;
@@ -22,18 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedDirectIndexes = new Set();
     let selectedIndirectIndexes = new Set();
     let selectedDataBoxes = new Set();
-    let mode = new URLSearchParams(window.location.search).get('mode');
     let currentFile = 1;
     let hintActive = false;
     let currentStep = 0;
 
-    if (result === 'win') {
-        titleElement.textContent = 'Congratulations!';
-        descriptionElement.textContent = 'You have completed the game.';
-        triggerConfetti();
-    } else if (result === 'lose') {
-        titleElement.textContent = 'Game Over';
-        descriptionElement.textContent = 'You have lost the game. Try again!';
+    if (result) {
+        handleResultPage(result, mode);
+    } else {
+        initializeGame();
     }
 
     function generateUniqueNumbers(count, max, exclude = []) {
@@ -148,12 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function startMediumMode() {
         instructionText.textContent = 'Select the first-level index block by clicking the "Index" button and then the highlighted block.';
 
-        const [indexNumber, ...secondaryIndexNumbers] = generateUniqueNumbers(3, 144);
-        const dataNumbersArray = generateUniqueNumbers(6, 144).filter(num => !secondaryIndexNumbers.includes(num) && num !== indexNumber);
+        const [indexNumber, ...secondaryIndexNumbers] = generateUniqueNumbers(4, 144);
+        const dataNumbersArray = generateUniqueNumbers(9, 144, [indexNumber, ...secondaryIndexNumbers]);
 
         const indexDataMapping = {
             [indexNumber]: secondaryIndexNumbers,
-            ...Object.fromEntries(secondaryIndexNumbers.map((secIndex, i) => [secIndex, dataNumbersArray.slice(i * 2, i * 2 + 2)]))
+            ...Object.fromEntries(secondaryIndexNumbers.map((secIndex, i) => [secIndex, dataNumbersArray.slice(i * 3, i * 3 + 3)]))
         };
 
         // Update table with generated hints
@@ -539,6 +536,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function handleResultPage(result, mode) {
+        titleElement.textContent = result === 'win' ? 'Congratulations!' : 'Game Over';
+        descriptionElement.textContent = result === 'win'
+            ? `You have completed the game in ${mode} mode.`
+            : 'You have lost the game. Try again!';
+        if (result === 'win') {
+            triggerConfetti();
+        }
+    }
+
     function triggerConfetti() {
         var end = Date.now() + (5 * 1000);
 
@@ -576,3 +583,4 @@ function restartGame() {
 function backToMainMenu() {
     window.location.href = 'index.html';
 }
+     
